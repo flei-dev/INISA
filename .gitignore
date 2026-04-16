@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.log
+data/cifar-10-batches-py/
+data/cifar-10-python.tar.gz
+data/store1/
+data/store2/
+data/store3/
+data/store4/
+data/checksums.txt
+results_bmv2_v3/logs/
+results_real/logs/

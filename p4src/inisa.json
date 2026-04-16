@@ -1,0 +1,1151 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["userMetadata.is_tdtp", 1, false],
+        ["userMetadata.priority_class", 3, false],
+        ["userMetadata.storage_ip", 32, false],
+        ["userMetadata.storage_port", 16, false],
+        ["userMetadata.meter_color", 2, false],
+        ["_padding_0", 2, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 2,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_t",
+      "id" : 3,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["totalLen", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["fragOffset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdrChecksum", 16, false],
+        ["srcAddr", 32, false],
+        ["dstAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "udp_t",
+      "id" : 4,
+      "fields" : [
+        ["srcPort", 16, false],
+        ["dstPort", 16, false],
+        ["length", 16, false],
+        ["checksum", 16, false]
+      ]
+    },
+    {
+      "name" : "tdtp_t",
+      "id" : 5,
+      "fields" : [
+        ["version", 8, false],
+        ["opcode", 8, false],
+        ["taskId", 16, false],
+        ["batchId", 32, false],
+        ["objectId", 32, false],
+        ["seqNum", 32, false],
+        ["offset", 32, false],
+        ["length", 32, false],
+        ["flags", 16, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 2,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 3,
+      "header_type" : "ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "udp",
+      "id" : 4,
+      "header_type" : "udp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tdtp",
+      "id" : 5,
+      "header_type" : "tdtp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [
+    {
+      "id" : 1,
+      "name" : "fl",
+      "elements" : []
+    }
+  ],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x11",
+              "mask" : null,
+              "next_state" : "parse_udp"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "protocol"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_udp",
+          "id" : 2,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "udp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x270f",
+              "mask" : null,
+              "next_state" : "parse_tdtp"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_tdtp",
+          "id" : 3,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "tdtp"
+                }
+              ],
+              "op" : "extract"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.is_tdtp"]
+                },
+                {
+                  "type" : "hexstr",
+                  "value" : "0x01"
+                }
+              ],
+              "op" : "set"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/egress.p4",
+        "line" : 43,
+        "column" : 8,
+        "source_fragment" : "InisaDeparser"
+      },
+      "order" : ["ethernet", "ipv4", "udp", "tdtp"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [
+    {
+      "name" : "InisaIngress.task_meter",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+        "line" : 75,
+        "column" : 42,
+        "source_fragment" : "task_meter"
+      },
+      "is_direct" : true,
+      "rate_count" : 2,
+      "type" : "bytes",
+      "size" : 1024,
+      "binding" : "InisaIngress.task_metering",
+      "result_target" : ["scalars", "userMetadata.meter_color"]
+    }
+  ],
+  "counter_arrays" : [],
+  "register_arrays" : [],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/egress.p4",
+        "line" : 17,
+        "column" : 8,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "InisaIngress.set_storage_dest",
+      "id" : 0,
+      "runtime_data" : [
+        {
+          "name" : "node_ip",
+          "bitwidth" : 32
+        },
+        {
+          "name" : "node_port",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "egress_port",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "dstAddr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 10,
+            "column" : 8,
+            "source_fragment" : "hdr.ipv4.dstAddr = node_ip"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 11,
+            "column" : 8,
+            "source_fragment" : "hdr.udp.dstPort = node_port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 2
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 12,
+            "column" : 8,
+            "source_fragment" : "smeta.egress_spec = egress_port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.storage_ip"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 13,
+            "column" : 8,
+            "source_fragment" : "meta.storage_ip = node_ip"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "InisaIngress.drop",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 17,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(smeta)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "InisaIngress.drop",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 17,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(smeta)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "InisaIngress.drop",
+      "id" : 3,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 17,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(smeta)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "InisaIngress.set_gpu_dest",
+      "id" : 4,
+      "runtime_data" : [
+        {
+          "name" : "gpu_ip",
+          "bitwidth" : 32
+        },
+        {
+          "name" : "gpu_port",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "egress_port",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "dstAddr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 37,
+            "column" : 8,
+            "source_fragment" : "hdr.ipv4.dstAddr = gpu_ip"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 38,
+            "column" : 8,
+            "source_fragment" : "hdr.udp.dstPort = gpu_port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 2
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 39,
+            "column" : 8,
+            "source_fragment" : "smeta.egress_spec = egress_port"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "InisaIngress.set_priority",
+      "id" : 5,
+      "runtime_data" : [
+        {
+          "name" : "prio",
+          "bitwidth" : 3
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "priority"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 56,
+            "column" : 8,
+            "source_fragment" : "smeta.priority = prio"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.priority_class"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 57,
+            "column" : 8,
+            "source_fragment" : "meta.priority_class = prio"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "InisaIngress.read_task_meter",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "InisaIngress.clone_to_controller",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "clone_ingress_pkt_to_egress",
+          "parameters" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x00000064"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x1"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 95,
+            "column" : 8,
+            "source_fragment" : "clone(CloneType.I2E, 100)"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+        "line" : 2,
+        "column" : 8,
+        "source_fragment" : "InisaIngress"
+      },
+      "init_table" : "node_2",
+      "tables" : [
+        {
+          "name" : "tbl_clone_to_controller",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 103,
+            "column" : 16,
+            "source_fragment" : "clone_to_controller()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [7],
+          "actions" : ["InisaIngress.clone_to_controller"],
+          "base_default_next" : "node_5",
+          "next_tables" : {
+            "InisaIngress.clone_to_controller" : "node_5"
+          },
+          "default_entry" : {
+            "action_id" : 7,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "InisaIngress.task_to_gpu",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 42,
+            "column" : 10,
+            "source_fragment" : "task_to_gpu"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.tdtp.taskId",
+              "target" : ["tdtp", "taskId"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [4, 2],
+          "actions" : ["InisaIngress.set_gpu_dest", "InisaIngress.drop"],
+          "base_default_next" : "InisaIngress.priority_classify",
+          "next_tables" : {
+            "InisaIngress.set_gpu_dest" : "InisaIngress.priority_classify",
+            "InisaIngress.drop" : "InisaIngress.priority_classify"
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "InisaIngress.object_address_translation",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 20,
+            "column" : 10,
+            "source_fragment" : "object_address_translation"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.tdtp.objectId",
+              "target" : ["tdtp", "objectId"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 65536,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [0, 1],
+          "actions" : ["InisaIngress.set_storage_dest", "InisaIngress.drop"],
+          "base_default_next" : "InisaIngress.priority_classify",
+          "next_tables" : {
+            "InisaIngress.set_storage_dest" : "InisaIngress.priority_classify",
+            "InisaIngress.drop" : "InisaIngress.priority_classify"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "InisaIngress.priority_classify",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 60,
+            "column" : 10,
+            "source_fragment" : "priority_classify"
+          },
+          "key" : [
+            {
+              "match_type" : "ternary",
+              "name" : "hdr.tdtp.flags",
+              "target" : ["tdtp", "flags"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "ternary",
+          "type" : "simple",
+          "max_size" : 2,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5],
+          "actions" : ["InisaIngress.set_priority"],
+          "base_default_next" : "InisaIngress.task_metering",
+          "next_tables" : {
+            "InisaIngress.set_priority" : "InisaIngress.task_metering"
+          },
+          "default_entry" : {
+            "action_id" : 5,
+            "action_const" : false,
+            "action_data" : ["0x1"],
+            "action_entry_const" : false
+          },
+          "entries" : [
+            {
+              "source_info" : {
+                "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+                "line" : 68,
+                "column" : 12,
+                "source_fragment" : "0x0002 &&& 0x0002: set_priority(0)"
+              },
+              "match_key" : [
+                {
+                  "match_type" : "ternary",
+                  "key" : "0x0002",
+                  "mask" : "0x0002"
+                }
+              ],
+              "action_entry" : {
+                "action_id" : 5,
+                "action_data" : ["0x0"]
+              },
+              "priority" : 1
+            },
+            {
+              "source_info" : {
+                "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+                "line" : 69,
+                "column" : 12,
+                "source_fragment" : "0x0008 &&& 0x0008: set_priority(2)"
+              },
+              "match_key" : [
+                {
+                  "match_type" : "ternary",
+                  "key" : "0x0008",
+                  "mask" : "0x0008"
+                }
+              ],
+              "action_entry" : {
+                "action_id" : 5,
+                "action_data" : ["0x2"]
+              },
+              "priority" : 2
+            }
+          ]
+        },
+        {
+          "name" : "InisaIngress.task_metering",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 81,
+            "column" : 10,
+            "source_fragment" : "task_metering"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.tdtp.taskId",
+              "target" : ["tdtp", "taskId"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : "InisaIngress.task_meter",
+          "action_ids" : [6],
+          "actions" : ["InisaIngress.read_task_meter"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "InisaIngress.read_task_meter" : null
+          },
+          "default_entry" : {
+            "action_id" : 6,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "tbl_drop",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 120,
+            "column" : 12,
+            "source_fragment" : "drop()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3],
+          "actions" : ["InisaIngress.drop"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "InisaIngress.drop" : null
+          },
+          "default_entry" : {
+            "action_id" : 3,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 100,
+            "column" : 12,
+            "source_fragment" : "hdr.tdtp.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["tdtp", "$valid$"]
+              }
+            }
+          },
+          "true_next" : "node_3",
+          "false_next" : "tbl_drop"
+        },
+        {
+          "name" : "node_3",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 102,
+            "column" : 16,
+            "source_fragment" : "hdr.tdtp.opcode == 0x03"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["tdtp", "opcode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x03"
+              }
+            }
+          },
+          "true_next" : "tbl_clone_to_controller",
+          "false_next" : "node_5"
+        },
+        {
+          "name" : "node_5",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/ingress.p4",
+            "line" : 107,
+            "column" : 16,
+            "source_fragment" : "hdr.tdtp.opcode == 0x04"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["tdtp", "opcode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x04"
+              }
+            }
+          },
+          "true_next" : "InisaIngress.task_to_gpu",
+          "false_next" : "InisaIngress.object_address_translation"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/egress.p4",
+        "line" : 3,
+        "column" : 8,
+        "source_fragment" : "InisaEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/egress.p4",
+        "line" : 17,
+        "column" : 8,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "d2b",
+          "left" : null,
+          "right" : {
+            "type" : "field",
+            "value" : ["ipv4", "$valid$"]
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "/home/p4/Desktop/inisa-prototype-v3/tests/../p4src/inisa.p4",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}
